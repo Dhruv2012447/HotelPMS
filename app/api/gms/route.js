@@ -1,3 +1,4 @@
+// pages/api/gms.js
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
@@ -22,30 +23,39 @@ export async function GET(req) {
     return NextResponse.json({ gms }, { status: 200 });
   } catch (error) {
     console.error("GM GET ERROR:", error);
-    return NextResponse.json({ error: "Server error", details: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Server error", details: error.message },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { hotelId, hotelCode, name, password, access } = body;
+    const { hotelId, hotelCode, name, password, access, profilePic } = body;
 
     if (!hotelId || !name || !password) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
     const client = await clientPromise;
     const db = client.db("hotelPMS");
 
-    // Check if GM already exists
+    // Check if GM already exists for this hotel
     const existingGM = await db.collection("gms").findOne({
       hotelId: new ObjectId(hotelId),
       name,
     });
 
     if (existingGM) {
-      return NextResponse.json({ error: "GM already exists for this hotel" }, { status: 400 });
+      return NextResponse.json(
+        { error: "GM already exists for this hotel" },
+        { status: 400 }
+      );
     }
 
     const newGM = {
@@ -54,14 +64,21 @@ export async function POST(req) {
       name,
       password, // ⚠️ In production, hash this!
       access: access || [],
+      profilePic: profilePic || null, // ✅ Save Base64 profile picture
       createdAt: new Date(),
     };
 
     await db.collection("gms").insertOne(newGM);
 
-    return NextResponse.json({ message: "GM Created Successfully" }, { status: 201 });
+    return NextResponse.json(
+      { message: "GM Created Successfully" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("GM CREATE ERROR:", error);
-    return NextResponse.json({ error: "Server error", details: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Server error", details: error.message },
+      { status: 500 }
+    );
   }
 }

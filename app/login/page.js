@@ -18,7 +18,7 @@ export default function LoginPage() {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",   // ✅ IMPORTANT
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ userId, password }),
       });
@@ -42,9 +42,26 @@ export default function LoginPage() {
       if (data.role === "hotel") {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("role", "hotel");
-        router.push(data.redirect);  // ✅ dynamic redirect
+        router.push(data.redirect);
         return;
       }
+
+      // GM
+      if (data.role === "gm") {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("role", "gm");
+        router.push(data.redirect);
+        return;
+      }
+
+    if (data.role === "staff") {
+  localStorage.setItem("isLoggedIn", "true");
+  localStorage.setItem("role", data.staffRole); // store real role
+  router.push(data.redirect);
+  return;
+}
+
+
 
     } catch (error) {
       setMessage("Something went wrong");
@@ -69,7 +86,7 @@ export default function LoginPage() {
             type="text"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
-            placeholder="Enter User ID"
+            placeholder="Enter Username / Hotel ID"
             className="w-full p-3 border border-gray-300 rounded-md bg-gray-50 text-gray-900"
             required
           />
