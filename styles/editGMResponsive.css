@@ -1,0 +1,39 @@
+/* styles/editGMResponsive.css */
+
+@media (max-width: 640px) {
+
+  .edit-gm-sidebar {
+    display: none !important;
+  }
+
+  .edit-gm-main {
+    margin-left: 0 !important;
+    padding: 16px !important;
+    justify-content: center !important;
+  }
+
+  .edit-gm-card {
+    padding: 16px !important;
+  }
+
+  .edit-gm-title {
+    font-size: 20px !important;
+  }
+
+  .edit-gm-profile {
+    width: 90px !important;
+    height: 90px !important;
+  }
+
+  .edit-gm-input {
+    padding: 10px !important;
+  }
+
+  .edit-gm-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .edit-gm-buttons {
+    flex-direction: column !important;
+  }
+}

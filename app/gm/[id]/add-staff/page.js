@@ -127,10 +127,24 @@ export default function AddStaffPage() {
                 Profile Picture (Optional)
               </label>
               <input
-                type="file"
-                onChange={(e) => setProfilePic(e.target.files[0])}
-                className="w-full border rounded-lg p-3"
-              />
+  type="file"
+  onChange={(e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const maxSize = 50 * 1024; // 50KB
+
+    if (file.size > maxSize) {
+      alert("❌ Image must be less than 50KB");
+      e.target.value = "";
+      return;
+    }
+
+    setProfilePic(file);
+  }}
+  className="w-full border rounded-lg p-3"
+/>
             </div>
 
             {/* Name */}
@@ -173,10 +187,7 @@ export default function AddStaffPage() {
               >
                 <option>Receptionist</option>
                 <option>Housekeeping</option>
-                <option>Manager</option>
-                <option>Accountant</option>
-                <option>Chef</option>
-                <option>Security</option>
+                <option>Laundry</option>
               </select>
             </div>
 

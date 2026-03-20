@@ -1,0 +1,35 @@
+/* styles/createGMResponsive.css */
+
+@media (max-width: 640px) {
+
+  .create-gm-container {
+    padding: 16px !important;
+  }
+
+  .create-gm-card {
+    padding: 16px !important;
+  }
+
+  .create-gm-title {
+    font-size: 22px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .create-gm-profile {
+    width: 96px !important;
+    height: 96px !important;
+  }
+
+  .create-gm-input {
+    padding: 10px !important;
+  }
+
+  .create-gm-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .create-gm-button {
+    padding: 10px !important;
+  }
+}

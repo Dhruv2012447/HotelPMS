@@ -57,15 +57,23 @@ export default function EditStaffPage() {
 
   // Convert file to base64
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfilePicture(reader.result.split(",")[1]); // remove data:image/... prefix
-    };
-    reader.readAsDataURL(file);
+  const maxSize = 50 * 1024; // 50KB
+
+  if (file.size > maxSize) {
+    alert("❌ Image must be less than 50KB");
+    e.target.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    setProfilePicture(reader.result.split(",")[1]); // remove data:image/... prefix
   };
+  reader.readAsDataURL(file);
+};
 
   // ✅ SAVE STAFF
   const handleSave = async (e) => {
@@ -164,12 +172,12 @@ export default function EditStaffPage() {
                 />
               )}
 
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full border p-3 rounded"
-              />
+             <input
+  type="file"
+  accept="image/png, image/jpeg, image/webp"
+  onChange={handleImageChange}
+  className="w-full border p-3 rounded"
+/>
             </div>
 
             {/* Name */}

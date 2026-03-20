@@ -1,0 +1,13 @@
+/* styles/dashboardResponsive.css */
+
+@media (max-width: 640px) {
+
+  .dashboard-container {
+    flex-direction: column !important;
+  }
+
+  .dashboard-main {
+    padding: 16px !important;
+  }
+
+}

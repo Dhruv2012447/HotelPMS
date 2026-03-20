@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import "@/styles/createGMResponsive.css"; // ✅ import extra file
 
 export default function CreateGMPage() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function CreateGMPage() {
   const [selectedAccess, setSelectedAccess] = useState([]);
   const [profilePic, setProfilePic] = useState(null);
 
-  // ✅ Fetch hotel data
+  // Fetch hotel data
   useEffect(() => {
     if (!id) return;
 
@@ -93,9 +94,11 @@ export default function CreateGMPage() {
     );
 
   return (
-    <div className="flex min-h-screen bg-gray-50 justify-center p-10 text-black">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-md p-10 border border-blue-100">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+    <div className="flex min-h-screen bg-gray-50 justify-center p-10 text-black create-gm-container">
+      
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-md p-10 border border-blue-100 create-gm-card">
+        
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center create-gm-title">
           Create GM for <span className="text-blue-600">{hotel.hotelId}</span>
         </h1>
 
@@ -103,7 +106,7 @@ export default function CreateGMPage() {
 
           {/* Profile Picture */}
           <div className="flex flex-col items-center">
-            <div className="w-32 h-32 rounded-full bg-gray-100 border-2 border-blue-200 overflow-hidden mb-3 flex items-center justify-center">
+            <div className="w-32 h-32 rounded-full bg-gray-100 border-2 border-blue-200 overflow-hidden mb-3 flex items-center justify-center create-gm-profile">
               {profilePic ? (
                 <img
                   src={profilePic}
@@ -114,6 +117,7 @@ export default function CreateGMPage() {
                 <span className="text-gray-400 text-4xl">+</span>
               )}
             </div>
+
             <input
               type="file"
               accept="image/*"
@@ -124,7 +128,7 @@ export default function CreateGMPage() {
                 reader.onloadend = () => setProfilePic(reader.result);
                 reader.readAsDataURL(file);
               }}
-              className="w-full border rounded-lg p-3 text-gray-700"
+              className="w-full border rounded-lg p-3 text-gray-700 create-gm-input"
             />
           </div>
 
@@ -136,7 +140,7 @@ export default function CreateGMPage() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border rounded-lg p-3"
+              className="w-full border rounded-lg p-3 create-gm-input"
             />
           </div>
 
@@ -148,14 +152,14 @@ export default function CreateGMPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded-lg p-3"
+              className="w-full border rounded-lg p-3 create-gm-input"
             />
           </div>
 
           {/* Access Permissions */}
           <div>
             <label className="block font-semibold mb-4">Access Permissions</label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 create-gm-grid">
               {(hotel.access || []).map((item, index) => (
                 <label
                   key={index}
@@ -176,7 +180,7 @@ export default function CreateGMPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition create-gm-button"
           >
             Create GM
           </button>

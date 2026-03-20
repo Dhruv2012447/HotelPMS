@@ -65,8 +65,8 @@ if (staff) {
   else if (role === "housekeeping") {
     redirectPath = `/staff/Housekeeping/${staff._id}`;
   } 
-  else if (role === "security") {
-    redirectPath = `/staff/security/${staff._id}`;
+  else if (role === "laundry") {
+    redirectPath = `/staff/laundry/${staff._id}`;
   } 
   else {
     return NextResponse.json(

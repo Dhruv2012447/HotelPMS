@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 
 export async function GET(req) {
   try {
+
     const { searchParams } = new URL(req.url);
 
     const staffId = searchParams.get("staffId");
@@ -54,11 +55,14 @@ export async function GET(req) {
     });
 
     if (!hotelRoomDoc || !hotelRoomDoc.rooms) {
-      return Response.json({ success: true, rooms: [] });
+      return Response.json({
+        success: true,
+        rooms: [],
+      });
     }
 
     /* =========================
-       🔹 GET ROOM STATUS COLLECTION
+       🔹 GET ROOM STATUS
     ========================== */
 
     const roomStatusDoc = await db.collection("roomStatus").findOne({
@@ -68,53 +72,79 @@ export async function GET(req) {
     const statusArray = roomStatusDoc?.rooms || [];
 
     /* =========================
-       🔹 FILTER LOGIC
+       🔹 FILTER ROOMS
     ========================== */
 
     const updatedRooms = { ...hotelRoomDoc.rooms };
+
     let updateNeeded = false;
     const availableRooms = [];
 
     Object.keys(updatedRooms).forEach((key) => {
+
       const room = updatedRooms[key];
 
-      if (!room.status) return;
+      if (!room) return;
 
-      const normalizedStatus = room.status
+      const normalizedStatus = (room.status || "")
         .toLowerCase()
         .replace("-", "")
         .replace(" ", "");
 
-      /* AUTO FIX CHECKEDOUT */
+      /* =========================
+         🔹 AUTO FIX CHECKEDOUT
+      ========================== */
+
       if (normalizedStatus === "checkedout") {
+
         updatedRooms[key].status = "Available";
         updatedRooms[key].updatedAt = new Date();
+
         updateNeeded = true;
       }
 
-      /* 🔥 FIND ROOM STATUS ENTRY */
+      /* =========================
+         🔹 FIND ROOM STATUS ENTRY
+      ========================== */
+
       const roomStatusEntry = statusArray.find(
         (r) => Number(r.roomNumber) === Number(room.roomNumber)
       );
 
-      const isCleaned =
-        roomStatusEntry && roomStatusEntry.status === "Cleaned";
+      const roomCleanStatus = roomStatusEntry?.status?.toLowerCase();
 
-      /* 🔥 FINAL FILTER */
+      /* =========================
+         🔹 CHECK AVAILABLE STATUS
+      ========================== */
+
+      const isAvailableStatus =
+        ["available", "clean", "cleaned"].includes(
+          (updatedRooms[key].status || "").toLowerCase()
+        );
+
+      const isCleaned =
+        ["clean", "cleaned"].includes(roomCleanStatus);
+
+      /* =========================
+         🔹 FINAL FILTER
+      ========================== */
+
       if (
-        updatedRooms[key].status === "Available" &&
+        isAvailableStatus &&
         isCleaned &&
         (!roomType || updatedRooms[key].roomType === roomType)
       ) {
         availableRooms.push(updatedRooms[key]);
       }
+
     });
 
     /* =========================
-       🔹 SAVE IF AUTO UPDATED
+       🔹 SAVE IF UPDATED
     ========================== */
 
     if (updateNeeded) {
+
       await db.collection("hotelRooms").updateOne(
         { _id: hotelRoomDoc._id },
         {
@@ -124,7 +154,12 @@ export async function GET(req) {
           },
         }
       );
+
     }
+
+    /* =========================
+       🔹 RESPONSE
+    ========================== */
 
     return Response.json({
       success: true,
@@ -132,10 +167,13 @@ export async function GET(req) {
     });
 
   } catch (error) {
+
     console.error("SEARCH ERROR:", error);
+
     return Response.json(
       { success: false, message: "Server error" },
       { status: 500 }
     );
+
   }
 }

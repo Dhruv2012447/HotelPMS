@@ -1,80 +1,166 @@
-"use client";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
-import { useHotels } from "@/context/HotelContext";
-import { useParams } from "next/navigation";
+export default async function HotelDetailPage({ params }) {
 
-export default function HotelDetail() {
-  const { hotels, loading } = useHotels();
-  const { id } = useParams();
+  const { id } = await params;
 
-  if (loading) {
-    return <div className="p-10 text-xl">Loading...</div>;
+  // ❌ Invalid ID check
+  if (!id || !ObjectId.isValid(id)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        Invalid Hotel ID
+      </div>
+    );
   }
 
-  const hotel = hotels.find((h) => h.hotelId === id);
+  // ✅ Connect DB
+  const client = await clientPromise;
+const db = client.db("hotelPMS"); // ✅ correct DB
+
+  // ✅ Fetch hotel directly
+  const hotel = await db
+    .collection("hotels")
+    .findOne({ _id: new ObjectId(id) });
+
   if (!hotel) {
-    return <div className="p-10 text-xl text-red-600">Hotel not found</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-400">
+        Hotel not found
+      </div>
+    );
   }
+
+  const expired =
+    hotel.expiresAt && new Date(hotel.expiresAt) < new Date();
 
   return (
-    <div className="max-w-6xl mx-auto p-10 space-y-10">
-      {/* Header */}
-      <div className="bg-white p-8 rounded-2xl shadow border">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">
-          {hotel.hotelId} — Details
-        </h1>
-        <p className="text-gray-600">
-          Subscription:{" "}
-          <span className="font-semibold text-black">{hotel.sub}</span>
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-8 text-black">
 
-      {/* Hotel Info */}
-      <div className="bg-white p-8 rounded-2xl shadow border">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          Hotel Information
-        </h2>
+      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-10 border">
 
-        {hotel.info && Object.keys(hotel.info).length > 0 ? (
-          <div className="grid grid-cols-2 gap-6 text-gray-700 text-lg">
-            {Object.entries(hotel.info).map(([key, value], i) => (
-              <div
-                key={i}
-                className="border rounded-lg p-4 bg-gray-50"
-              >
-                <b className="capitalize">{key}:</b> {value}
-              </div>
-            ))}
+        {/* HEADER */}
+        <div className="mb-10">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            🏨 Hotel Details
+          </h1>
+          <p className="text-gray-500">
+            Complete overview of the selected hotel
+          </p>
+        </div>
+
+        {/* MAIN INFO */}
+        <div className="grid md:grid-cols-2 gap-8 mb-10">
+
+          <div className="bg-gray-50 p-6 rounded-xl border hover:scale-105 transition">
+            <p className="text-sm text-gray-500 mb-1">Hotel ID</p>
+            <p className="text-xl font-semibold text-blue-600">
+              {hotel.hotelId || "N/A"}
+            </p>
           </div>
-        ) : (
-          <p className="text-gray-500">No information added by owner yet.</p>
-        )}
-      </div>
 
-      {/* Staff */}
-      <div className="bg-white p-8 rounded-2xl shadow border">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          Staff Members
-        </h2>
-
-        {hotel.staff.length > 0 ? (
-          <div className="grid grid-cols-2 gap-6">
-            {hotel.staff.map((s, i) => (
-              <div
-                key={i}
-                className="border rounded-lg p-5 bg-gray-50"
-              >
-                <p className="text-lg font-semibold text-gray-800">
-                  {s.name}
-                </p>
-                <p className="text-gray-600">{s.role}</p>
-              </div>
-            ))}
+          <div className="bg-gray-50 p-6 rounded-xl border hover:scale-105 transition">
+            <p className="text-sm text-gray-500 mb-1">Subscription</p>
+            <p className="text-lg font-medium">
+              {hotel.sub || "N/A"}
+            </p>
           </div>
-        ) : (
-          <p className="text-gray-500">No staff added yet.</p>
-        )}
+
+          <div className="bg-gray-50 p-6 rounded-xl border hover:scale-105 transition">
+            <p className="text-sm text-gray-500 mb-1">Status</p>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                hotel.manualStatus === "Active"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {hotel.manualStatus || "Unknown"}
+            </span>
+          </div>
+
+          <div className="bg-gray-50 p-6 rounded-xl border hover:scale-105 transition">
+            <p className="text-sm text-gray-500 mb-1">Expiry</p>
+            <p className={`font-medium ${expired ? "text-red-600" : ""}`}>
+              {hotel.expiresAt
+                ? new Date(hotel.expiresAt).toLocaleString()
+                : "N/A"}
+            </p>
+          </div>
+
+        </div>
+
+        {/* DATES */}
+        <div className="grid md:grid-cols-2 gap-8 mb-10">
+
+          <div className="bg-white border p-6 rounded-xl shadow-sm">
+            <p className="text-sm text-gray-500">Created At</p>
+            <p className="font-medium text-gray-800">
+              {hotel.createdAt
+                ? new Date(hotel.createdAt).toLocaleString()
+                : "N/A"}
+            </p>
+          </div>
+
+          <div className="bg-white border p-6 rounded-xl shadow-sm">
+            <p className="text-sm text-gray-500">Expires At</p>
+            <p className="font-medium text-gray-800">
+              {hotel.expiresAt
+                ? new Date(hotel.expiresAt).toLocaleString()
+                : "N/A"}
+            </p>
+          </div>
+
+        </div>
+
+        {/* ACCESS MODULES */}
+        <div className="mb-10">
+          <h2 className="text-xl font-bold mb-4 text-gray-800">
+            🔐 Access Modules
+          </h2>
+
+          <div className="flex flex-wrap gap-3">
+            {hotel.access && hotel.access.length > 0 ? (
+              hotel.access.map((module, index) => (
+                <span
+                  key={index}
+                  className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-medium hover:scale-110 transition"
+                >
+                  {module}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-400">
+                No modules assigned
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* SUMMARY */}
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-2xl border">
+          <h3 className="text-lg font-semibold text-blue-700 mb-2">
+            Summary
+          </h3>
+          <p className="text-gray-700 text-sm">
+            This hotel is currently{" "}
+            <span className="font-semibold">
+              {hotel.manualStatus || "Unknown"}
+            </span>{" "}
+            with a{" "}
+            <span className="font-semibold">
+              {hotel.sub || "N/A"}
+            </span>{" "}
+            subscription plan. Access includes{" "}
+            <span className="font-semibold">
+              {hotel.access?.length || 0}
+            </span>{" "}
+            modules.
+          </p>
+        </div>
+
       </div>
+
     </div>
   );
 }

@@ -122,13 +122,12 @@ export default function SuperAdminDashboard() {
                     >
                       Edit
                     </Link>
-
-                    <Link
-                      href={`/super-admin/detail/${h.hotelId}`}
-                      className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs hover:scale-105 hover:shadow-lg transition"
-                    >
-                      Detail
-                    </Link>
+<Link
+  href={`/super-admin/detail/${h._id}`}
+  className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs hover:scale-105 hover:shadow-lg transition"
+>
+  Detail
+</Link>
                   </td>
                 </tr>
               ))}
